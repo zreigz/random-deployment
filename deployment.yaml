@@ -1,28 +1,28 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: random-start-deployment
-spec:
-  replicas: 8
-  selector:
-    matchLabels:
-      app: random-start-app
-  template:
-    metadata:
-      labels:
-        app: random-start-app
-    spec:
-      containers:
-        - name: random-start-container
-          image: busybox:1.36
-          command:
-            - /bin/sh
-            - -c
-            - |
-              # Generate random delay between 0-30 seconds
-              DELAY=$((RANDOM % 300))
-              echo "Starting after ${DELAY} seconds..."
-              sleep ${DELAY}
-              echo "Pod started!"
-              # Keep container running
-              sleep 3600
+#apiVersion: apps/v1
+#kind: Deployment
+#metadata:
+#  name: random-start-deployment
+#spec:
+#  replicas: 8
+#  selector:
+#    matchLabels:
+#      app: random-start-app
+#  template:
+#    metadata:
+#      labels:
+#        app: random-start-app
+#    spec:
+#      containers:
+#        - name: random-start-container
+#          image: busybox:1.36
+#          command:
+#            - /bin/sh
+#            - -c
+#            - |
+#              # Generate random delay between 0-30 seconds
+#              DELAY=$((RANDOM % 300))
+#              echo "Starting after ${DELAY} seconds..."
+#              sleep ${DELAY}
+#              echo "Pod started!"
+#              # Keep container running
+#              sleep 3600
