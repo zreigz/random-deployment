@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: random-rollout-demo
+spec:
+  replicas: 8
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 4
+      maxSurge: 4
+  selector:
+    matchLabels:
+      app: random-rollout-demo
+  template:
+    metadata:
+      labels:
+        app: random-rollout-demo
+    spec:
+      containers:
+        - name: app
+          image: busybox:1.36
+          command:
+            - /bin/sh
+            - -c
+            - |
+              # random delay between 5–40 seconds
+              DELAY=$(( ( $(od -An -N2 -tu2 /dev/urandom) ) % 35 + 5 ))
+              echo "Sleeping ${DELAY}s before ready"
+              sleep ${DELAY}
+              touch /tmp/ready
+              sleep 3600
+          readinessProbe:
+            exec:
+              command:
+                - cat
+                - /tmp/ready
+            initialDelaySeconds: 2
+            periodSeconds: 2

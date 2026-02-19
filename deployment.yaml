@@ -20,7 +20,7 @@ spec:
             - -c
             - |
               # Generate random delay between 0-30 seconds
-              DELAY=$((RANDOM % 30))
+              DELAY=$((RANDOM % 300))
               echo "Starting after ${DELAY} seconds..."
               sleep ${DELAY}
               echo "Pod started!"
