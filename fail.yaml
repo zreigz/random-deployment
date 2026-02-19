@@ -1,49 +1,35 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: random-chaos-demo
+  name: fail-once-demo
 spec:
   replicas: 8
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxUnavailable: 4
-      maxSurge: 4
   selector:
     matchLabels:
-      app: random-chaos-demo
+      app: fail-once-demo
   template:
     metadata:
       labels:
-        app: random-chaos-demo
+        app: fail-once-demo
     spec:
       containers:
         - name: app
           image: busybox:1.36
+          volumeMounts:
+            - name: state
+              mountPath: /state
           command:
             - /bin/sh
             - -c
             - |
-              # Random startup delay (5–30s)
-              START_DELAY=$(( ( $(od -An -N2 -tu2 /dev/urandom) ) % 25 + 5 ))
-              echo "Startup delay: ${START_DELAY}s"
-              sleep ${START_DELAY}
+              if [ ! -f /state/started ]; then
+                echo "First start → failing intentionally"
+                touch /state/started
+                exit 1
+              fi
               
-              # Mark pod as ready
-              touch /tmp/ready
-              echo "Pod is READY"
-              
-              # Random lifetime before failure (10–60s)
-              FAIL_DELAY=$(( ( $(od -An -N2 -tu2 /dev/urandom) ) % 50 + 10 ))
-              echo "Will fail in ${FAIL_DELAY}s"
-              sleep ${FAIL_DELAY}
-              
-              echo "Simulating failure..."
-              exit 1
-          readinessProbe:
-            exec:
-              command:
-                - cat
-                - /tmp/ready
-            periodSeconds: 2
-            failureThreshold: 1
+              echo "Second start → working normally"
+              sleep 3600
+      volumes:
+        - name: state
+          emptyDir: {}
