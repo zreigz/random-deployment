@@ -22,13 +22,19 @@ spec:
             - /bin/sh
             - -c
             - |
-              if [ ! -f /state/started ]; then
-                echo "First start → failing intentionally"
-                touch /state/started
-                exit 1
+              # Random startup delay 5–20 seconds
+              START_DELAY=$(( ( $(od -An -N2 -tu2 /dev/urandom) ) % 16 + 5 ))
+              echo "Startup delay: ${START_DELAY}s"
+              sleep ${START_DELAY}
+  
+              # Decide randomly whether to fail (30% chance)
+              FAIL_CHANCE=$(( ( $(od -An -N2 -tu2 /dev/urandom) ) % 100 ))
+              if [ $FAIL_CHANCE -lt 30 ]; then
+              echo "Random failure triggered (chance=${FAIL_CHANCE}%)"
+              exit 1
               fi
-              
-              echo "Second start → working normally"
+  
+              echo "Pod started successfully"
               sleep 3600
       volumes:
         - name: state
